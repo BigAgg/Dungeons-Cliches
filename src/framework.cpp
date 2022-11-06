@@ -8,6 +8,16 @@ framework::framework(const char* title, int width, int height, bool fullscreen)
 	// create the window and renderer
 	if (createWindow(title, width, height, fullscreen)){
 		tM = new textureManager(renderer);
+		mouseColider = new SDL_Rect();
+		mouseColider->w = 1;
+		mouseColider->h = 1;
+		mouseColider->x = 0;
+		mouseColider->y = 0;
+		clippingRect = new SDL_Rect();
+		clippingRect->w = 480;
+		clippingRect->h = 270;
+		clippingRect->x = 0;
+		clippingRect->y = 0;
 		if (tM->isInitialised){
 			isRunning = true;
 
@@ -30,8 +40,10 @@ framework::~framework()
 
 bool framework::createWindow(const char* title, int width, int height, bool fullscreen)
 {
-	float wscale = width / 1920;
-	float hscale = height / 1080;
+	float wscale = width / 480;
+	float hscale = height / 270;
+	windowScaleW = wscale;
+	windowScaleH = hscale;
 	int flags = 0;
 	if (fullscreen)
 	{
@@ -48,7 +60,7 @@ bool framework::createWindow(const char* title, int width, int height, bool full
 			if (renderer)
 			{
 				SDL_RenderSetScale(renderer, wscale, hscale);
-				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);		// Setting renderer background color to black
+				SDL_SetRenderDrawColor(renderer, 125, 125, 125, 255);		// Setting renderer background color to black
 				std::cout << "[FW] Renderer created!..." << "\n";
 				return true;
 
@@ -63,6 +75,14 @@ void framework::handleEvents()
 	// getting window events
 	SDL_Event event;
 	SDL_PollEvent(&event);
+
+	// getting mouse position in current frame
+	mouseButtons = SDL_GetMouseState(&mousePos[0], &mousePos[1]);
+	mousePos[0] = (mousePos[0] / windowScaleW) - 240;
+	mousePos[1] = (mousePos[1] / windowScaleH) - 135;
+	mouseColider->x = mousePos[0] + 240;
+	mouseColider->y = mousePos[1] + 135;
+
 	int keycode;
 	switch (event.type)
 	{
@@ -126,7 +146,27 @@ void framework::render()
 	SDL_RenderClear(renderer);
 
 	// adding stuff to render
-	SDL_RenderCopy(renderer, tM->things, NULL, NULL);
+	int x = 0;
+	int y = 0;
+	for (int i = 0; i<128; i++){
+		tile* t = tM->tiles[i];
+		if (t){
+			t->dstrect->x = x*16;
+			t->dstrect->y = y*16;
+			if (SDL_HasIntersection(t->dstrect, clippingRect)){
+				SDL_RenderCopy(renderer, t->tileTex, NULL, t->dstrect);
+				if(SDL_HasIntersection(t->dstrect, mouseColider)){
+					std::cout << t->name << "\n";
+				}
+			}
+		}
+		x++;
+		if (x>7){
+			y++;
+			x=0;
+		}
+	}
+	// SDL_RenderCopy(renderer, surface, NULL, NULL)
 	
 
 	SDL_RenderPresent(renderer);

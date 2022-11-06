@@ -26,10 +26,18 @@ public:
 		return isRunning;
 	};
 
+	tile* testTile;
+
 private:
 	bool isRunning = false;
+
+	int mousePos[2] = {0, 0};
+	Uint32 mouseButtons;
+	float windowScaleW, windowScaleH;
 	SDL_Renderer* renderer;
 	SDL_Window* window;
 	SDL_Surface* display;
+	SDL_Rect* clippingRect;
+	SDL_Rect* mouseColider;
 	textureManager* tM;
 };

@@ -139,6 +139,13 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"mouseColiderx",
+			".",
+			"0",
+			".",
+			"DestroyTexture",
+			", renderer",
+			"getTex",
 			"double ",
 			"Game",
 			"hitbox.bottom",
