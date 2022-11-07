@@ -1,5 +1,5 @@
 #include <iostream>
-#include "framework.h"
+#include "framework.cpp"
 
 // setting up game and getting settings
 framework* game = nullptr;
