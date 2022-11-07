@@ -146,24 +146,9 @@ void framework::render()
 	SDL_RenderClear(renderer);
 
 	// adding stuff to render
-	int x = 0;
-	int y = 0;
-	for (int i = 0; i<128; i++){
-		tile* t = tM->tiles[i];
-		if (t){
-			t->dstrect->x = x*16;
-			t->dstrect->y = y*16;
-			if (SDL_HasIntersection(t->dstrect, clippingRect)){
-				SDL_RenderCopy(renderer, t->tileTex, NULL, t->dstrect);
-				if(SDL_HasIntersection(t->dstrect, mouseColider)){
-					std::cout << t->name << "\n";
-				}
-			}
-		}
-		x++;
-		if (x>7){
-			y++;
-			x=0;
+	for (sprite* i : tM->sprites){
+		if (SDL_HasIntersection(i->dstrect, clippingRect)){
+			SDL_RenderCopy(renderer, tM->tiles[i->id[1]]->tileTex, NULL, i->dstrect);
 		}
 	}
 	// SDL_RenderCopy(renderer, surface, NULL, NULL)

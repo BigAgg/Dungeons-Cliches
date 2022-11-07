@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
 		delta = SDL_GetTicks() - tick;		// calculating deltatime of last frame
 		if (delta >= 1000 / FPS)		// locking framerate if game is running too fast
 		{
+			SDL_Log("delta took: %d", delta);
 			tick = SDL_GetTicks();
 
 			game->handleEvents();		// handling events just as closing or resizing the window

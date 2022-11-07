@@ -19,9 +19,10 @@ SDL_Rect* getRect(int sizeW, int sizeH, int posX=0, int posY=0){
 }
 
 // tile class
-tile::tile(const char* name, int id, int collisionLayer, SDL_Surface* texture, int idxW, int idxH, int sizeW, int sizeH){
+tile::tile(const char* name, int id[2], int collisionLayer, SDL_Surface* texture, int idxW, int idxH, int sizeW, int sizeH){
 	this->name = name;
-	this->id = id;
+	this->id[0] = id[0];
+	this->id[1] = id[1];
 	colLayer = collisionLayer;
 	srcrect = getRect(sizeW, sizeH, idxW*16, idxH*16);
 	dstrect = getRect(sizeW, sizeH);
@@ -37,6 +38,25 @@ tile::~tile(){
 void tile::createOwnTexture(SDL_Renderer* renderer){
 	tileTex = SDL_CreateTextureFromSurface(renderer, tileSurf);
 }
+
+
+sprite::sprite(int posX, int posY, int sizeW, int sizeH, int tileid[2], int colisionLayer){
+	id[0] = tileid[0];
+	id[1] = tileid[1];
+	this->collisionLayer = colisionLayer;
+	pos[0] = posX;
+	pos[1] = posY;
+	dstrect = new SDL_Rect();
+	dstrect->x = pos[0];
+	dstrect->y = pos[1];
+	dstrect->h = sizeH;
+	dstrect->w = sizeW;
+};
+
+sprite::~sprite(){
+	delete dstrect;
+};
+
 
 const char* tileNames[128] = {
 	"stonewalldown1",
@@ -183,11 +203,12 @@ textureManager::textureManager(SDL_Renderer* renderer){
 		const char* tileName = tileNames[i];
 		if (tileName != empty){
 			tile* newTile;
+			int id[2] = {0, i};
 			if (i == 45 || i == 91){
-				newTile = new tile(tileNames[i], i, 0, tileset, x, y, 16, 32);
+				newTile = new tile(tileNames[i], id, 0, tileset, x, y, 16, 32);
 			}
 			else{
-				newTile = new tile(tileNames[i], i, 0, tileset, x, y, 16, 16);
+				newTile = new tile(tileNames[i], id, 0, tileset, x, y, 16, 16);
 			}
 			newTile->createOwnTexture(renderer);
 			tiles[i] = newTile;
@@ -196,6 +217,21 @@ textureManager::textureManager(SDL_Renderer* renderer){
 		if (x>7){
 			y++;
 			x=0;
+		}
+	}
+
+	// testing sprites
+	tile* testTile = tiles[0];
+	y = 0;
+	x = 0;
+	for (int i = 0; i < 1000000; i++){
+		sprite* newSprite;
+		newSprite = new sprite(x*16, y*16, testTile->dstrect->w, testTile->dstrect->h, testTile->id,0);
+		sprites.push_back(newSprite);
+		x++;
+		if (x > 32){
+			y++;
+			x -= x;
 		}
 	}
 	
