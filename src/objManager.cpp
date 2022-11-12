@@ -1,7 +1,26 @@
-#include "sprite.h"
+#include "objManager.h"
+
+int gameObjectCount = 0;
+std::vector<gameObject*> allObjects;
+
+std::vector<gameObject*> getObjects(){
+	return allObjects;
+}
+
+int getGameObjectCount(){
+	return gameObjectCount;
+}
+
+void clearGameObjects(){
+	for (gameObject* i : allObjects){
+		delete i;
+	}
+	allObjects.clear();
+	gameObjectCount = 0;
+}
 
 SDL_Surface* getSurf(int sizeW, int sizeH){
-	SDL_Surface* surf = SDL_CreateRGBSurface(0, sizeW, sizeH, 32, 0, 0, 0, 100);
+	SDL_Surface* surf = SDL_CreateRGBSurface(0, sizeW, sizeH, 32, 0, 0, 0, 0);
 	surf->w = sizeW;
 	surf->h = sizeH;
 	SDL_SetColorKey(surf, true, 0);
@@ -38,25 +57,6 @@ tile::~tile(){
 void tile::createOwnTexture(SDL_Renderer* renderer){
 	tileTex = SDL_CreateTextureFromSurface(renderer, tileSurf);
 }
-
-
-sprite::sprite(int posX, int posY, int sizeW, int sizeH, int tileid[2], int colisionLayer){
-	id[0] = tileid[0];
-	id[1] = tileid[1];
-	this->collisionLayer = colisionLayer;
-	pos[0] = posX;
-	pos[1] = posY;
-	dstrect = new SDL_Rect();
-	dstrect->x = pos[0];
-	dstrect->y = pos[1];
-	dstrect->h = sizeH;
-	dstrect->w = sizeW;
-};
-
-sprite::~sprite(){
-	delete dstrect;
-};
-
 
 const char* tileNames[128] = {
 	"stonewalldown1",
@@ -189,8 +189,8 @@ const char* tileNames[128] = {
 	"EMPTY"
 };
 
-// textureManager class
-textureManager::textureManager(SDL_Renderer* renderer){
+// objManager class
+objManager::objManager(SDL_Renderer* renderer){
 	tileset = IMG_Load("res/Textures/basictiles.png");
 	characters = IMG_Load("res/Textures/characters.png");
 	dead = IMG_Load("res/Textures/dead.png");
@@ -198,21 +198,17 @@ textureManager::textureManager(SDL_Renderer* renderer){
 	int x = 0;
 	int y = 0;
 	for (int i = 0; i<128; i++){
-		tiles[i] = NULL;
-		const char* empty = "EMPTY";
-		const char* tileName = tileNames[i];
-		if (tileName != empty){
-			tile* newTile;
-			int id[2] = {0, i};
-			if (i == 45 || i == 91){
-				newTile = new tile(tileNames[i], id, 0, tileset, x, y, 16, 32);
-			}
-			else{
-				newTile = new tile(tileNames[i], id, 0, tileset, x, y, 16, 16);
-			}
-			newTile->createOwnTexture(renderer);
-			tiles[i] = newTile;
+		tile* newTile;
+		int id[2] = {0, i};
+		if (i == 45 || i == 91){
+			newTile = new tile(tileNames[i], id, 0, tileset, x, y, 16, 32);
 		}
+		else{
+			newTile = new tile(tileNames[i], id, 0, tileset, x, y, 16, 16);
+		}
+		newTile->createOwnTexture(renderer);
+		tiles[i] = newTile;
+
 		x++;
 		if (x>7){
 			y++;
@@ -220,18 +216,22 @@ textureManager::textureManager(SDL_Renderer* renderer){
 		}
 	}
 
-	// testing sprites
-	tile* testTile = tiles[0];
-	y = 0;
+
 	x = 0;
-	for (int i = 0; i < 1000000; i++){
-		sprite* newSprite;
-		newSprite = new sprite(x*16, y*16, testTile->dstrect->w, testTile->dstrect->h, testTile->id,0);
-		sprites.push_back(newSprite);
+	y = 0;
+	int idx = 0;
+	for (int i = 0; i < 100000; i++){
+		sprite* testSprite;
+		testSprite = new sprite(x * 16, y * 16, 16, 16, 0, tiles[idx]->tileTex);
+		allObjects.push_back(testSprite);
 		x++;
-		if (x > 32){
+		idx ++;
+		if (idx >= 128){
+			idx = 0;
+		}
+		if (x >= 8){
 			y++;
-			x -= x;
+			x-=x;
 		}
 	}
 	
@@ -244,7 +244,7 @@ textureManager::textureManager(SDL_Renderer* renderer){
 	std::cout << "[TM] init failed!...\n";
 };
 
-textureManager::~textureManager(){
+objManager::~objManager(){
 	SDL_FreeSurface(tileset);
 	SDL_FreeSurface(characters);
 	SDL_FreeSurface(dead);

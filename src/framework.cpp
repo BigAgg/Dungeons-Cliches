@@ -2,12 +2,14 @@
 
 bool KEYS[322];
 bool JUSTPRESSED[322];
+std::vector<gameObject*> objects;
 
 framework::framework(const char* title, int width, int height, bool fullscreen)
 {
 	// create the window and renderer
 	if (createWindow(title, width, height, fullscreen)){
-		tM = new textureManager(renderer);
+		oM = new objManager(renderer);
+		Player = new player(SDL_CreateTextureFromSurface(renderer, oM->characters), 1);
 		mouseColider = new SDL_Rect();
 		mouseColider->w = 1;
 		mouseColider->h = 1;
@@ -18,7 +20,7 @@ framework::framework(const char* title, int width, int height, bool fullscreen)
 		clippingRect->h = 270;
 		clippingRect->x = 0;
 		clippingRect->y = 0;
-		if (tM->isInitialised){
+		if (oM->isInitialised){
 			isRunning = true;
 
 			// initialising keys
@@ -40,8 +42,8 @@ framework::~framework()
 
 bool framework::createWindow(const char* title, int width, int height, bool fullscreen)
 {
-	float wscale = width / 480;
-	float hscale = height / 270;
+	float wscale = width / 960;
+	float hscale = height / 540;
 	windowScaleW = wscale;
 	windowScaleH = hscale;
 	int flags = 0;
@@ -56,7 +58,7 @@ bool framework::createWindow(const char* title, int width, int height, bool full
 		if (window)
 		{
 			std::cout << "[FW] Window created!..." << "\n";
-			renderer = SDL_CreateRenderer(window, -1, 0);		// Creating renderer
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);		// Creating renderer
 			if (renderer)
 			{
 				SDL_RenderSetScale(renderer, wscale, hscale);
@@ -73,6 +75,7 @@ bool framework::createWindow(const char* title, int width, int height, bool full
 void framework::handleEvents()
 {
 	// getting window events
+	objects = getObjects();
 	SDL_Event event;
 	SDL_PollEvent(&event);
 
@@ -116,8 +119,27 @@ void framework::handleInput()
 	if (KEYS[SDLK_ESCAPE]){
 		isRunning = false;
 	}
-	if(JUSTPRESSED[SDLK_w]){
-		std::cout << "w was pressed\n";
+
+	if (KEYS[SDLK_w]){
+		Player->velocity.y = 1;
+	}
+
+	if (KEYS[SDLK_s]){
+		if (Player->velocity.y == 1){
+			Player->velocity.y = 0;
+		}
+		else Player->velocity.y = -1;
+	}
+
+	if (KEYS[SDLK_a]){
+		Player->velocity.x = 1;
+	}
+
+	if (KEYS[SDLK_d]){
+		if (Player->velocity.x == 1){
+			Player->velocity.x = 0;
+		}
+		else Player->velocity.x = -1;
 	}
 	// resetting pressed buttons of current frame
 	for (int i=0; i<322; i++){
@@ -126,13 +148,17 @@ void framework::handleInput()
 	return;
 }
 
-void framework::onTick(double delta)
+void framework::onTick(Uint32 delta)
 {
-	return;
-}
-
-void framework::update(double delta)
-{
+	for (gameObject* i : objects){
+		if (i->isAlive()){
+			i->move(Player->position.x, Player->position.y);
+			i->onTick(delta);
+			i->update(delta);
+		}
+	}
+	Player->onTick(delta);
+	Player->update(delta);
 	return;
 }
 
@@ -146,11 +172,12 @@ void framework::render()
 	SDL_RenderClear(renderer);
 
 	// adding stuff to render
-	for (sprite* i : tM->sprites){
-		if (SDL_HasIntersection(i->dstrect, clippingRect)){
-			SDL_RenderCopy(renderer, tM->tiles[i->id[1]]->tileTex, NULL, i->dstrect);
-		}
+	for (gameObject* i : objects){
+		i->draw(renderer);
+		i->velocity.zero();
 	}
+	Player->draw(renderer);
+	Player->velocity.zero();
 	// SDL_RenderCopy(renderer, surface, NULL, NULL)
 	
 
@@ -162,7 +189,7 @@ void framework::clean()
 	isRunning = false;
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
-	delete tM;
+	delete oM;
 	IMG_Quit();
 	SDL_Quit();
 	std::cout << "[FW] cleaned!..." << "\n";

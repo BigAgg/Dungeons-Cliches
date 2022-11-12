@@ -3,8 +3,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
-#include "sprite.cpp"
-#include "vector.cpp"
+#include <vector>
+#include "objManager.h"
 
 class framework{
 public:
@@ -16,8 +16,7 @@ public:
 	void handleEvents();
 	void handleInput();
 	void handleCollision();
-	void onTick(double delta);
-	void update(double delta);
+	void onTick(Uint32 delta);
 	void render();
 	void clean();
 
@@ -39,5 +38,6 @@ private:
 	SDL_Surface* display;
 	SDL_Rect* clippingRect;
 	SDL_Rect* mouseColider;
-	textureManager* tM;
+	player* Player;
+	objManager* oM;
 };

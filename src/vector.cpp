@@ -1,10 +1,10 @@
 #include "vector.h"
 
-Vector2::Vector2(float xPos = 0, float yPos = 0){
-	x = xPos;
-	y = yPos;
-	baseX = xPos;
-	baseY = yPos;
+Vector2::Vector2(){
+	x = 0;
+	y = 0;
+	baseX = 0;
+	baseY = 0;
 };
 
 Vector2::~Vector2(){

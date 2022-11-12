@@ -4,7 +4,7 @@
 
 class Vector2{
 public:
-	Vector2(float xPos, float yPos);
+	Vector2();
 	~Vector2();
 
 	void normalize();
@@ -14,7 +14,6 @@ public:
 	float x;
 	float y;
 
-private:
 	float baseX;
 	float baseY;
 };
