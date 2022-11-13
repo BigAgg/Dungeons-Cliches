@@ -5,6 +5,6 @@
 
 class sprite : public gameObject{
 public:
-	sprite(int posX, int posY, int sizeW, int sizeH, int colisionLayer, SDL_Texture* t);
+	sprite(float posX, float posY, int sizeW, int sizeH, int colisionLayer, SDL_Texture* t, int texID);
 	~sprite();
 };

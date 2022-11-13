@@ -12,11 +12,12 @@ int getGameObjectCount(){
 }
 
 void clearGameObjects(){
-	for (gameObject* i : allObjects){
-		delete i;
-	}
 	allObjects.clear();
 	gameObjectCount = 0;
+}
+
+void pushBackObjects(gameObject* obj){
+	allObjects.push_back(obj);
 }
 
 SDL_Surface* getSurf(int sizeW, int sizeH){
@@ -214,15 +215,16 @@ objManager::objManager(SDL_Renderer* renderer){
 			y++;
 			x=0;
 		}
+
 	}
 
 
 	x = 0;
 	y = 0;
 	int idx = 0;
-	for (int i = 0; i < 100000; i++){
+	for (int i = 0; i < 100; i++){
 		sprite* testSprite;
-		testSprite = new sprite(x * 16, y * 16, 16, 16, 0, tiles[idx]->tileTex);
+		testSprite = new sprite(x * 16, y * 16, 16, 16, 0, tiles[idx]->tileTex, idx);
 		allObjects.push_back(testSprite);
 		x++;
 		idx ++;
@@ -234,6 +236,8 @@ objManager::objManager(SDL_Renderer* renderer){
 			x-=x;
 		}
 	}
+
+	//saveLevel("level.txt");
 	
 	// checking if every texture was loaded in properly
 	if(tileset && characters && dead && things){
@@ -254,3 +258,65 @@ objManager::~objManager(){
 	}
 	std::cout << "[TM] deleted!...\n";
 };
+
+void objManager::loadLevel(std::string filename){
+	using namespace std;
+	clearGameObjects();
+
+	struct {
+		const char* type;
+		int sizeW;
+		int sizeH;
+		int collisionLayer;
+		int textureID;
+		int positionX;
+		int positionY;
+	} loadStruct;
+
+	ifstream fileObj;
+	fileObj.open(filename);
+	if (fileObj.is_open()){
+		while (true){
+			string str = "empty";
+			loadStruct.type = "empty";
+			try{
+				fileObj.read((char*)&loadStruct, sizeof(loadStruct));
+				if (loadStruct.type == str){
+					break;
+				}
+			}
+			catch (const char* msg){
+				break;
+			}
+			if (loadStruct.type != str){
+				int posX = loadStruct.positionX;
+				int posY = loadStruct.positionY;
+				int width = loadStruct.sizeW;
+				int height = loadStruct.sizeH;
+				int layer = loadStruct.collisionLayer;
+				int id = loadStruct.textureID;
+				str = "sprite";
+				SDL_Log("xpos: %d ypos: %d", loadStruct.positionX, loadStruct.positionY);
+				if (loadStruct.type == str){
+					sprite* sp;
+					sp = new sprite(posX, posY, width, height, layer, tiles[id]->tileTex, id);
+					allObjects.push_back(sp);
+					gameObjectCount++;
+				}
+			}
+		}
+	}
+	fileObj.close();
+}
+
+void objManager::saveLevel(std::string filename){
+	using namespace std;
+	ofstream fileObj;
+	fileObj.open(filename);
+	if (fileObj.is_open()){
+		for (gameObject* obj : allObjects){
+			obj->save(&fileObj);
+		}
+	}
+	fileObj.close();
+}

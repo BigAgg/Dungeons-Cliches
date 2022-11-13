@@ -3,12 +3,12 @@
 
 // setting up game and getting settings
 framework* game = nullptr;
-int res[2] = {2560, 1440};
+int res[2] = {1920, 1080};
 Uint32 FPS = 60;
 
 int main(int argc, char *argv[])
 {
-	game = new framework("MyRPG", res[0], res[1], 1);
+	game = new framework("MyRPG", res[0], res[1], 0);
 	Uint32 delta;
 	Uint32 tick = SDL_GetTicks();
 

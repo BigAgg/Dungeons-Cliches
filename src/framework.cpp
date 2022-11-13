@@ -9,17 +9,13 @@ framework::framework(const char* title, int width, int height, bool fullscreen)
 	// create the window and renderer
 	if (createWindow(title, width, height, fullscreen)){
 		oM = new objManager(renderer);
+		oM->loadLevel("level.txt");
 		Player = new player(SDL_CreateTextureFromSurface(renderer, oM->characters), 1);
 		mouseColider = new SDL_Rect();
 		mouseColider->w = 1;
 		mouseColider->h = 1;
 		mouseColider->x = 0;
 		mouseColider->y = 0;
-		clippingRect = new SDL_Rect();
-		clippingRect->w = 480;
-		clippingRect->h = 270;
-		clippingRect->x = 0;
-		clippingRect->y = 0;
 		if (oM->isInitialised){
 			isRunning = true;
 
@@ -46,6 +42,11 @@ bool framework::createWindow(const char* title, int width, int height, bool full
 	float hscale = height / 540;
 	windowScaleW = wscale;
 	windowScaleH = hscale;
+	clippingRect = new SDL_Rect();
+	clippingRect->w = 960;
+	clippingRect->h = 540;
+	clippingRect->x = 0;
+	clippingRect->y = 0;
 	int flags = 0;
 	if (fullscreen)
 	{
@@ -61,6 +62,8 @@ bool framework::createWindow(const char* title, int width, int height, bool full
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);		// Creating renderer
 			if (renderer)
 			{
+				SDL_RenderSetLogicalSize(renderer, 960, 540);
+				SDL_RenderSetClipRect(renderer, clippingRect);
 				SDL_RenderSetScale(renderer, wscale, hscale);
 				SDL_SetRenderDrawColor(renderer, 125, 125, 125, 255);		// Setting renderer background color to black
 				std::cout << "[FW] Renderer created!..." << "\n";
@@ -81,10 +84,10 @@ void framework::handleEvents()
 
 	// getting mouse position in current frame
 	mouseButtons = SDL_GetMouseState(&mousePos[0], &mousePos[1]);
-	mousePos[0] = (mousePos[0] / windowScaleW) - 240;
-	mousePos[1] = (mousePos[1] / windowScaleH) - 135;
-	mouseColider->x = mousePos[0] + 240;
-	mouseColider->y = mousePos[1] + 135;
+	mousePos[0] = (mousePos[0] / windowScaleW) - 480;
+	mousePos[1] = (mousePos[1] / windowScaleH) - 270;
+	mouseColider->x = mousePos[0] + 480;
+	mouseColider->y = mousePos[1] + 270;
 
 	int keycode;
 	switch (event.type)
@@ -117,6 +120,7 @@ void framework::handleEvents()
 void framework::handleInput()
 {
 	if (KEYS[SDLK_ESCAPE]){
+		oM->saveLevel("level.txt");
 		isRunning = false;
 	}
 
@@ -140,6 +144,12 @@ void framework::handleInput()
 			Player->velocity.x = 0;
 		}
 		else Player->velocity.x = -1;
+	}
+
+	if (JUSTPRESSED[SDLK_SPACE]){
+		sprite* sp;
+		sp = new sprite(mouseColider->x - Player->position.x, mouseColider->y - Player->position.y, 16, 16, 0, oM->tiles[0]->tileTex, 0);
+		pushBackObjects(sp);
 	}
 	// resetting pressed buttons of current frame
 	for (int i=0; i<322; i++){

@@ -33,6 +33,26 @@ void gameObject::move(float x, float y){
 	hitbox.y = dstrect.y;
 }
 
+void gameObject::save(std::ofstream* fileObj){
+	struct {
+		const char* type;
+		int sizeW;
+		int sizeH;
+		int collisionLayer;
+		int texID;
+		int positionX;
+		int positionY;
+	} saveStruct;
+	saveStruct.type = type;
+	saveStruct.sizeW = hitbox.w;
+	saveStruct.sizeH = hitbox.h;
+	saveStruct.collisionLayer = collisionLayer;
+	saveStruct.texID = textureID;
+	saveStruct.positionX = position.baseX;
+	saveStruct.positionY = position.baseY;
+	fileObj->write((char*)&saveStruct, sizeof(saveStruct));
+}
+
 bool gameObject::isAlive(){
 	return Alive;
 };

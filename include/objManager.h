@@ -15,6 +15,8 @@ int getGameObjectCount();
 
 void clearGameObjects();
 
+void pushBackObjects(gameObject* obj);
+
 SDL_Surface* getSurf(int sizeW, int sizeH);
 SDL_Rect* getRect(int sizeW, int sizeH, int posX, int posY);
 
@@ -40,6 +42,9 @@ class objManager{
 public:
 	objManager(SDL_Renderer* renderer);
 	~objManager();
+
+	void saveLevel(std::string filename);
+	void loadLevel(std::string filename);
 
 
 	SDL_Surface* tileset = NULL;

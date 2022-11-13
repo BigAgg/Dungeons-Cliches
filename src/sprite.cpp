@@ -1,7 +1,9 @@
 #include "sprite.h"
 
-sprite::sprite(int posX, int posY, int sizeW, int sizeH, int colisionLayer, SDL_Texture* t){
+sprite::sprite(float posX, float posY, int sizeW, int sizeH, int colisionLayer, SDL_Texture* t, int texID){
 	int w, h;
+	textureID = texID;
+	type = "sprite";
 	SDL_QueryTexture(t, NULL, NULL, &w, &h);
 	this->collisionLayer = colisionLayer;
 	texture = t;
