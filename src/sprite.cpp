@@ -2,8 +2,8 @@
 
 sprite::sprite(float posX, float posY, int sizeW, int sizeH, int colisionLayer, SDL_Texture* t, int texID){
 	int w, h;
+	strcpy(saveStruct.type, "sprite");
 	textureID = texID;
-	type = "sprite";
 	SDL_QueryTexture(t, NULL, NULL, &w, &h);
 	this->collisionLayer = colisionLayer;
 	texture = t;

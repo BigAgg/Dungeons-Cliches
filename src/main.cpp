@@ -33,6 +33,5 @@ int main(int argc, char *argv[])
 	// cleaning and deleting game
 	game->clean();
 	delete game;
-	SDL_Delay(3000);
 	return 0;
 }

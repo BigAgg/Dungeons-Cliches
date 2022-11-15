@@ -19,7 +19,6 @@ public:
 
 	bool isAlive();
 
-	const char* type = "gameObject";
 	SDL_Rect dstrect;
 	SDL_Rect srcrect;
 	SDL_Rect hitbox;
@@ -29,6 +28,16 @@ public:
 	int index;
 	int collisionLayer;
 	int textureID;
+
+	struct {
+		char type[20];
+		int sizeW;
+		int sizeH;
+		int collisionLayer;
+		int texID;
+		int positionX;
+		int positionY;
+	} saveStruct;
 
 private:
 	bool Rendered = true;

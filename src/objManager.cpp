@@ -264,7 +264,7 @@ void objManager::loadLevel(std::string filename){
 	clearGameObjects();
 
 	struct {
-		const char* type;
+		char type[20];
 		int sizeW;
 		int sizeH;
 		int collisionLayer;
@@ -276,16 +276,11 @@ void objManager::loadLevel(std::string filename){
 	ifstream fileObj;
 	fileObj.open(filename);
 	if (fileObj.is_open()){
-		while (true){
+		while (!fileObj.eof()){
 			string str = "empty";
-			loadStruct.type = "empty";
-			try{
-				fileObj.read((char*)&loadStruct, sizeof(loadStruct));
-				if (loadStruct.type == str){
-					break;
-				}
-			}
-			catch (const char* msg){
+			strcpy(loadStruct.type, "empty");
+			fileObj.read((char*)&loadStruct, sizeof(loadStruct));
+			if (loadStruct.type == str){
 				break;
 			}
 			if (loadStruct.type != str){
@@ -296,7 +291,6 @@ void objManager::loadLevel(std::string filename){
 				int layer = loadStruct.collisionLayer;
 				int id = loadStruct.textureID;
 				str = "sprite";
-				SDL_Log("xpos: %d ypos: %d", loadStruct.positionX, loadStruct.positionY);
 				if (loadStruct.type == str){
 					sprite* sp;
 					sp = new sprite(posX, posY, width, height, layer, tiles[id]->tileTex, id);

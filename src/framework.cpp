@@ -62,9 +62,10 @@ bool framework::createWindow(const char* title, int width, int height, bool full
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);		// Creating renderer
 			if (renderer)
 			{
-				SDL_RenderSetLogicalSize(renderer, 960, 540);
-				SDL_RenderSetClipRect(renderer, clippingRect);
+				SDL_RenderSetLogicalSize(renderer, 1920, 1080);
 				SDL_RenderSetScale(renderer, wscale, hscale);
+				SDL_RenderSetClipRect(renderer, clippingRect);
+				SDL_RenderSetViewport(renderer, NULL);
 				SDL_SetRenderDrawColor(renderer, 125, 125, 125, 255);		// Setting renderer background color to black
 				std::cout << "[FW] Renderer created!..." << "\n";
 				return true;
@@ -162,7 +163,7 @@ void framework::onTick(Uint32 delta)
 {
 	for (gameObject* i : objects){
 		if (i->isAlive()){
-			i->move(Player->position.x, Player->position.y);
+			i->move(std::round(Player->position.x), std::round(Player->position.y));
 			i->onTick(delta);
 			i->update(delta);
 		}
