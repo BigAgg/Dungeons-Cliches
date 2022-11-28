@@ -265,42 +265,37 @@ void objManager::loadLevel(std::string filename){
 
 	struct {
 		char type[20];
-		int sizeW;
-		int sizeH;
-		int collisionLayer;
-		int textureID;
-		int positionX;
-		int positionY;
+		Uint32 sizeW;
+		Uint32 sizeH;
+		Uint32 collisionLayer;
+		Uint32 textureID;
+		Uint32 positionX;
+		Uint32 positionY;
 	} loadStruct;
 
 	ifstream fileObj;
 	fileObj.open(filename);
 	if (fileObj.is_open()){
 		while (!fileObj.eof()){
-			string str = "empty";
+			string str = "sprite";
 			strcpy(loadStruct.type, "empty");
 			fileObj.read((char*)&loadStruct, sizeof(loadStruct));
 			if (loadStruct.type == str){
-				break;
-			}
-			if (loadStruct.type != str){
-				int posX = loadStruct.positionX;
-				int posY = loadStruct.positionY;
-				int width = loadStruct.sizeW;
-				int height = loadStruct.sizeH;
-				int layer = loadStruct.collisionLayer;
-				int id = loadStruct.textureID;
-				str = "sprite";
-				if (loadStruct.type == str){
-					sprite* sp;
-					sp = new sprite(posX, posY, width, height, layer, tiles[id]->tileTex, id);
-					allObjects.push_back(sp);
-					gameObjectCount++;
-				}
+				Uint32 posX = loadStruct.positionX;
+				Uint32 posY = loadStruct.positionY;
+				Uint32 width = loadStruct.sizeW;
+				Uint32 height = loadStruct.sizeH;
+				Uint32 layer = loadStruct.collisionLayer;
+				Uint32 id = loadStruct.textureID;
+				sprite* sp;
+				sp = new sprite(posX, posY, width, height, layer, tiles[id]->tileTex, id);
+				allObjects.push_back(sp);
+				gameObjectCount++;
 			}
 		}
 	}
 	fileObj.close();
+	SDL_Log("%d objects loaded!", gameObjectCount);
 }
 
 void objManager::saveLevel(std::string filename){

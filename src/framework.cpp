@@ -62,10 +62,9 @@ bool framework::createWindow(const char* title, int width, int height, bool full
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);		// Creating renderer
 			if (renderer)
 			{
-				SDL_RenderSetLogicalSize(renderer, 1920, 1080);
+				SDL_RenderSetLogicalSize(renderer, 960, 540);
 				SDL_RenderSetScale(renderer, wscale, hscale);
 				SDL_RenderSetClipRect(renderer, clippingRect);
-				SDL_RenderSetViewport(renderer, NULL);
 				SDL_SetRenderDrawColor(renderer, 125, 125, 125, 255);		// Setting renderer background color to black
 				std::cout << "[FW] Renderer created!..." << "\n";
 				return true;
@@ -123,6 +122,10 @@ void framework::handleInput()
 	if (KEYS[SDLK_ESCAPE]){
 		oM->saveLevel("level.txt");
 		isRunning = false;
+	}
+
+	if (KEYS[SDLK_1]){
+		oM->saveLevel("level.txt");
 	}
 
 	if (KEYS[SDLK_w]){

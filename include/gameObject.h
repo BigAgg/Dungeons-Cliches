@@ -26,17 +26,17 @@ public:
 	Vector2 position;
 	Vector2 velocity;
 	int index;
-	int collisionLayer;
-	int textureID;
+	Uint32 collisionLayer;
+	Uint32 textureID;
 
 	struct {
 		char type[20];
-		int sizeW;
-		int sizeH;
-		int collisionLayer;
-		int texID;
-		int positionX;
-		int positionY;
+		Uint32 sizeW;
+		Uint32 sizeH;
+		Uint32 collisionLayer;
+		Uint32 texID;
+		Uint32 positionX;
+		Uint32 positionY;
 	} saveStruct;
 
 private:
