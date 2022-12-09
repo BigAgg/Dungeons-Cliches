@@ -7,9 +7,13 @@
 #include "gameObject.h"
 #include "sprite.h"
 #include "player.h"
+#include "chunk.h"
 #include <iostream>
 
 std::vector<gameObject*> getObjects();
+std::vector<gameObject*> getChunks();
+
+void createChunks();
 
 int getGameObjectCount();
 

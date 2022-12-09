@@ -11,9 +11,10 @@ public:
 	gameObject();
 	virtual ~gameObject();
 
-	void draw(SDL_Renderer* renderer);
+	virtual void draw(SDL_Renderer* renderer);
 	virtual void update(Uint32 delta);
 	virtual void onTick(Uint32 delta);
+	virtual void onHit(gameObject* obj);
 	virtual void move(float x, float y);
 	virtual void save(std::ofstream* fileObj);
 
@@ -25,21 +26,22 @@ public:
 	SDL_Texture* texture;
 	Vector2 position;
 	Vector2 velocity;
-	int index;
-	Uint32 collisionLayer;
-	Uint32 textureID;
+	int32_t index;
+	int32_t collisionLayer;
+	int32_t textureID;
+	bool isInChunk = false;
+	bool Rendered = true;
 
 	struct {
 		char type[20];
-		Uint32 sizeW;
-		Uint32 sizeH;
-		Uint32 collisionLayer;
-		Uint32 texID;
-		Uint32 positionX;
-		Uint32 positionY;
+		int32_t sizeW;
+		int32_t sizeH;
+		int32_t collisionLayer;
+		int32_t texID;
+		int32_t positionX;
+		int32_t positionY;
 	} saveStruct;
 
 private:
-	bool Rendered = true;
 	bool Alive = true;
 };

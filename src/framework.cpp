@@ -11,11 +11,15 @@ framework::framework(const char* title, int width, int height, bool fullscreen)
 		oM = new objManager(renderer);
 		oM->loadLevel("level.txt");
 		Player = new player(SDL_CreateTextureFromSurface(renderer, oM->characters), 1);
+		createChunks();
+
+		// setting up hitbox for mouse
 		mouseColider = new SDL_Rect();
 		mouseColider->w = 1;
 		mouseColider->h = 1;
 		mouseColider->x = 0;
 		mouseColider->y = 0;
+
 		if (oM->isInitialised){
 			isRunning = true;
 
@@ -38,6 +42,7 @@ framework::~framework()
 
 bool framework::createWindow(const char* title, int width, int height, bool fullscreen)
 {
+	// setting up window scale ratio and clipping rect
 	float wscale = width / 960;
 	float hscale = height / 540;
 	windowScaleW = wscale;
@@ -64,7 +69,7 @@ bool framework::createWindow(const char* title, int width, int height, bool full
 			{
 				SDL_RenderSetLogicalSize(renderer, 960, 540);
 				SDL_RenderSetScale(renderer, wscale, hscale);
-				SDL_RenderSetClipRect(renderer, clippingRect);
+				//SDL_RenderSetClipRect(renderer, clippingRect);
 				SDL_SetRenderDrawColor(renderer, 125, 125, 125, 255);		// Setting renderer background color to black
 				std::cout << "[FW] Renderer created!..." << "\n";
 				return true;
@@ -77,8 +82,10 @@ bool framework::createWindow(const char* title, int width, int height, bool full
 
 void framework::handleEvents()
 {
+	// getting gameObjects
+	objects = getChunks();
+
 	// getting window events
-	objects = getObjects();
 	SDL_Event event;
 	SDL_PollEvent(&event);
 
@@ -119,13 +126,17 @@ void framework::handleEvents()
 
 void framework::handleInput()
 {
-	if (KEYS[SDLK_ESCAPE]){
+	if (JUSTPRESSED[SDLK_ESCAPE]){
 		oM->saveLevel("level.txt");
 		isRunning = false;
 	}
 
-	if (KEYS[SDLK_1]){
+	if (JUSTPRESSED[SDLK_1]){
 		oM->saveLevel("level.txt");
+	}
+
+	if (JUSTPRESSED[SDLK_2]){
+		oM->loadLevel("level.txt");
 	}
 
 	if (KEYS[SDLK_w]){
@@ -151,9 +162,12 @@ void framework::handleInput()
 	}
 
 	if (JUSTPRESSED[SDLK_SPACE]){
-		sprite* sp;
-		sp = new sprite(mouseColider->x - Player->position.x, mouseColider->y - Player->position.y, 16, 16, 0, oM->tiles[0]->tileTex, 0);
-		pushBackObjects(sp);
+		if (!(mouseColider->x - Player->position.x < 0) && !(mouseColider->y - Player->position.y < 0)){
+			sprite* sp;
+			sp = new sprite(mouseColider->x - Player->position.x, mouseColider->y - Player->position.y, 16, 16, 0, oM->tiles[0]->tileTex, 0);
+			pushBackObjects(sp);
+			createChunks();
+		}
 	}
 	// resetting pressed buttons of current frame
 	for (int i=0; i<322; i++){
@@ -164,13 +178,19 @@ void framework::handleInput()
 
 void framework::onTick(Uint32 delta)
 {
+	// looping all chunks
 	for (gameObject* i : objects){
-		if (i->isAlive()){
-			i->move(std::round(Player->position.x), std::round(Player->position.y));
+		i->Rendered = false;
+		// checking if chunk needs to be rendered or not
+		if (i->isAlive() && SDL_HasIntersection(&i->hitbox, clippingRect)){
+			i->Rendered = true;
 			i->onTick(delta);
 			i->update(delta);
 		}
+		// move chunks position
+		i->move(std::round(Player->position.x), std::round(Player->position.y));
 	}
+	// player's onTick and update function is called every frame
 	Player->onTick(delta);
 	Player->update(delta);
 	return;
@@ -184,16 +204,17 @@ void framework::handleCollision()
 void framework::render()
 {
 	SDL_RenderClear(renderer);
-
-	// adding stuff to render
+	
+	// looping chunks and draw them if they need to be rendered
 	for (gameObject* i : objects){
-		i->draw(renderer);
-		i->velocity.zero();
+		if (i->Rendered){
+			i->draw(renderer);
+			i->velocity.zero();
+		}
 	}
+	// drawing and resetting velocity of Player
 	Player->draw(renderer);
 	Player->velocity.zero();
-	// SDL_RenderCopy(renderer, surface, NULL, NULL)
-	
 
 	SDL_RenderPresent(renderer);
 }
